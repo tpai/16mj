@@ -1,5 +1,7 @@
 ﻿# 16MJ
 
+一款使用 Python 撰寫的麻將遊戲。
+
 ![screenshot1](./screenshot1.png)
 ![screenshot2](./screenshot2.png)
 
