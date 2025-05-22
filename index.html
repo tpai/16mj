@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Mahjong</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <header>
+            <h1>Mahjong Game</h1>
+        </header>
+
+        <div id="game-board">
+            <div id="player-area-south" class="player-area">
+                <h2>Player (South)</h2>
+                <div class="hand" id="hand-south"></div>
+                <div class="discards" id="discards-south"></div>
+                <div class="exposed-melds" id="melds-south"></div>
+            </div>
+
+            <div id="player-area-east" class="player-area">
+                <h2>East</h2>
+                <div class="hand" id="hand-east"></div>
+                <div class="discards" id="discards-east"></div>
+                <div class="exposed-melds" id="melds-east"></div>
+            </div>
+
+            <div id="player-area-north" class="player-area">
+                <h2>North</h2>
+                <div class="hand" id="hand-north"></div>
+                <div class="discards" id="discards-north"></div>
+                <div class="exposed-melds" id="melds-north"></div>
+            </div>
+
+            <div id="player-area-west" class="player-area">
+                <h2>West</h2>
+                <div class="hand" id="hand-west"></div>
+                <div class="discards" id="discards-west"></div>
+                <div class="exposed-melds" id="melds-west"></div>
+            </div>
+
+            <div id="center-area">
+                <div id="wall-info">Remaining Tiles: <span id="wall-count">144</span></div>
+                <div id="current-turn-info">Current Turn: <span id="current-player">East</span></div>
+            </div>
+        </div>
+
+        <div id="controls">
+            <h2>Controls</h2>
+            <button id="btn-chi">Chi</button>
+            <button id="btn-pon">Pon</button>
+            <button id="btn-kong">Kong</button>
+            <button id="btn-ting">Ting</button>
+            <button id="btn-hu">Hu</button>
+            <button id="btn-skip">Skip / Back</button>
+        </div>
+
+        <footer>
+            <p>Mahjong Game - Web Version</p>
+        </footer>
+    </div>
+    <script src="hu_calculator.js"></script>
+    <script src="mahjong.js"></script>
+</body>
+</html>
