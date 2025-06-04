@@ -460,13 +460,11 @@ function handleAction(action) {
 
 function doPong(pid, tile, from) {
   removeTileFromHand(pid, tile, 2);
-  const meld = {type:'pong', tiles:[tile,tile,tile]};
+  const meld = {type:'pong', tiles:[tile, tile, tile]};
   if (typeof from === 'number') meld.fromIdx = 2;
   melds[pid].push(meld);
   if (typeof from === 'number') discards[from].pop();
-  if (deck.length > 0) {
-    drawTileFor(pid);
-  }
+  if (pid === 0) playerNeedsDraw = false;
   turn = pid;
 }
 
@@ -476,9 +474,7 @@ function doKong(pid, tile, from) {
   if (typeof from === 'number') meld.fromIdx = 3;
   melds[pid].push(meld);
   if (typeof from === 'number') discards[from].pop();
-  if (deck.length > 0) {
-    drawTileFor(pid);
-  }
+  if (pid === 0) playerNeedsDraw = false;
   turn = pid;
 }
 
@@ -489,9 +485,7 @@ function doChi(pid, combo, tile, from) {
   if (typeof from === 'number') meld.fromIdx = 2;
   melds[pid].push(meld);
   if (typeof from === 'number') discards[from].pop();
-  if (deck.length > 0) {
-    drawTileFor(pid);
-  }
+  if (pid === 0) playerNeedsDraw = false;
   turn = pid;
 }
 
