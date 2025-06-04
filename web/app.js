@@ -31,6 +31,7 @@ let turn = 0; // 0 = you
 let gameOver = false;
 let pendingAction = null;
 let showAIDeck = false;
+let playerNeedsDraw = false;
 
 const tileToIndex = {
   t1:0,t2:1,t3:2,t4:3,t5:4,t6:5,t7:6,t8:7,t9:8,
@@ -184,7 +185,12 @@ function renderPlayerHand() {
     const img = document.createElement('img');
     img.src = tileImages[t];
     img.className = 'tile';
-    img.addEventListener('click', () => discard(idx));
+    if (!playerNeedsDraw) {
+      img.addEventListener('click', () => discard(idx));
+      img.style.cursor = 'pointer';
+    } else {
+      img.style.opacity = '0.5';
+    }
     handEl.appendChild(img);
   });
 }
@@ -277,6 +283,7 @@ function startGame() {
   turn = 0;
   gameOver = false;
   pendingAction = null;
+  playerNeedsDraw = false;
   renderAll();
   updateControls();
 }
@@ -286,6 +293,7 @@ function drawTileFor(pid) {
   const tile = deck.shift();
   players[pid].push(tile);
   sortPlayer(pid);
+  if (pid === 0) playerNeedsDraw = false;
   renderAll();
   if (checkHu(pid, tile)) {
     declareWin(pid);
@@ -301,8 +309,10 @@ function drawTile() {
 
 function discard(idx) {
   if (turn !== 0) return;
+  if (playerNeedsDraw) return;
   const tile = players[0].splice(idx, 1)[0];
   discards[0].push(tile);
+  playerNeedsDraw = true;
   renderAll();
   checkReactions(0, tile);
 }
@@ -471,6 +481,7 @@ function nextTurn() {
     return;
   }
   turn = (turn + 1) % 4;
+  if (turn === 0) playerNeedsDraw = true;
   updateControls();
   if (turn !== 0) {
     setTimeout(() => aiTurn(turn), 500);
