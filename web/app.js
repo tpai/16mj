@@ -219,6 +219,21 @@ function shuffle(arr) {
   }
 }
 
+function renderMeld(el, meld) {
+  let tiles = meld.tiles.slice();
+  if (typeof meld.fromIdx === 'number') {
+    const taken = tiles.splice(meld.fromIdx, 1)[0];
+    const mid = Math.floor((tiles.length + 1) / 2);
+    tiles.splice(mid, 0, taken);
+  }
+  tiles.forEach(t => {
+    const img = document.createElement('img');
+    img.src = tileImages[t];
+    img.className = 'tile';
+    el.appendChild(img);
+  });
+}
+
 function renderPlayerHand() {
   const handEl = document.getElementById('player-hand');
   handEl.innerHTML = '';
@@ -240,14 +255,7 @@ function renderPlayerMelds() {
   const mEl = document.getElementById('player-melds');
   if (!mEl) return;
   mEl.innerHTML = '';
-  melds[0].forEach(m => {
-    m.tiles.forEach(t => {
-      const img = document.createElement('img');
-      img.src = tileImages[t];
-      img.className = 'tile';
-      mEl.appendChild(img);
-    });
-  });
+  melds[0].forEach(m => renderMeld(mEl, m));
 }
 
 function renderPlayerFlowers() {
@@ -283,14 +291,7 @@ function renderAiMelds(p) {
   const el = document.getElementById(`meld-${p}`);
   if (!el) return;
   el.innerHTML = '';
-  melds[p].forEach(m => {
-    m.tiles.forEach(t => {
-      const img = document.createElement('img');
-      img.src = tileImages[t];
-      img.className = 'tile';
-      el.appendChild(img);
-    });
-  });
+  melds[p].forEach(m => renderMeld(el, m));
 }
 
 function renderDiscardPile(p) {
@@ -346,8 +347,10 @@ function startGame() {
     flowers[p] = [];
   }
   players[0].push(deck.shift()); // host draws first
-  sortPlayer(0);
   replaceFlowers(0);
+  const firstTile = players[0].pop();
+  sortPlayer(0);
+  players[0].push(firstTile);
   replaceFlowers(1);
   replaceFlowers(2);
   replaceFlowers(3);
@@ -363,9 +366,15 @@ function drawTileFor(pid) {
   if (deck.length === 0) return null;
   players[pid].push(deck.shift());
   replaceFlowers(pid);
-  sortPlayer(pid);
   const tile = players[pid][players[pid].length - 1];
-  if (pid === 0) playerNeedsDraw = false;
+  if (pid === 0) {
+    players[pid].pop();
+    sortPlayer(pid);
+    players[pid].push(tile);
+    playerNeedsDraw = false;
+  } else {
+    sortPlayer(pid);
+  }
   renderAll();
   if (tile && checkHu(pid, tile)) {
     declareWin(pid);
@@ -380,6 +389,7 @@ function discard(idx) {
   const tile = players[0].splice(idx, 1)[0];
   discards[0].push(tile);
   playerNeedsDraw = true;
+  sortPlayer(0);
   renderAll();
   checkReactions(0, tile);
 }
@@ -450,7 +460,9 @@ function handleAction(action) {
 
 function doPong(pid, tile, from) {
   removeTileFromHand(pid, tile, 2);
-  melds[pid].push({type:'pong', tiles:[tile,tile,tile]});
+  const meld = {type:'pong', tiles:[tile,tile,tile]};
+  if (typeof from === 'number') meld.fromIdx = 2;
+  melds[pid].push(meld);
   if (typeof from === 'number') discards[from].pop();
   if (deck.length > 0) {
     drawTileFor(pid);
@@ -460,7 +472,9 @@ function doPong(pid, tile, from) {
 
 function doKong(pid, tile, from) {
   removeTileFromHand(pid, tile, 3);
-  melds[pid].push({type:'kong', tiles:[tile,tile,tile,tile]});
+  const meld = {type:'kong', tiles:[tile,tile,tile,tile]};
+  if (typeof from === 'number') meld.fromIdx = 3;
+  melds[pid].push(meld);
   if (typeof from === 'number') discards[from].pop();
   if (deck.length > 0) {
     drawTileFor(pid);
@@ -471,7 +485,9 @@ function doKong(pid, tile, from) {
 function doChi(pid, combo, tile, from) {
   removeTileFromHand(pid, combo[0]);
   removeTileFromHand(pid, combo[1]);
-  melds[pid].push({type:'chi', tiles:[combo[0], combo[1], tile]});
+  const meld = {type:'chi', tiles:[combo[0], combo[1], tile]};
+  if (typeof from === 'number') meld.fromIdx = 2;
+  melds[pid].push(meld);
   if (typeof from === 'number') discards[from].pop();
   if (deck.length > 0) {
     drawTileFor(pid);
