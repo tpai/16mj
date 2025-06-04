@@ -16,8 +16,6 @@ body {
   max-width: 700px;
   max-height: 100vh;
   box-sizing: border-box;
-  overflow: hidden;
-  border: 3px solid #00ff00;
 }
 h1 {
   margin-bottom: 20px;
@@ -48,8 +46,6 @@ h1 {
   margin-top: 10px;
 }
 .tile-stack img {
-  width: 32px;
-  height: 48px;
 }
 #player { grid-area: player; }
 .tile-column {
@@ -82,8 +78,6 @@ button:disabled {
   margin-top: 10px;
 }
 .tile {
-  width: 32px;
-  height: 48px;
   margin: 0 1px;
 }
 
@@ -93,13 +87,9 @@ button:disabled {
 
 #west .tile {
   transform: rotate(90deg);
-  width: 48px;
-  height: 32px;
 }
 #east .tile {
   transform: rotate(-90deg);
-  width: 48px;
-  height: 32px;
 }
 
 #toggleAi {
