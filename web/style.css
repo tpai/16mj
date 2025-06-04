@@ -91,12 +91,11 @@ button:disabled {
   margin-top: 10px;
 }
 
-#west .tile {
-  transform: rotate(-90deg);
-}
-
+#west .tile,
 #east .tile {
   transform: rotate(90deg);
+  width: 48px;
+  height: 32px;
 }
 
 #toggleAi {
