@@ -431,9 +431,9 @@ function handleAction(action) {
     hideActionButtons();
     return;
   }
-  if (action === 'pong') doPong(0, tile);
-  else if (action === 'kong') { doKong(0, tile); }
-  else if (action === 'chi') { doChi(0, opts.chi[0], tile); }
+  if (action === 'pong') doPong(0, tile, from);
+  else if (action === 'kong') { doKong(0, tile, from); }
+  else if (action === 'chi') { doChi(0, opts.chi[0], tile, from); }
   else if (action === 'skip') { pendingAction = null; hideActionButtons(); nextTurn(); return; }
   pendingAction = null;
   hideActionButtons();
@@ -441,9 +441,10 @@ function handleAction(action) {
   updateControls();
 }
 
-function doPong(pid, tile) {
+function doPong(pid, tile, from) {
   removeTileFromHand(pid, tile, 2);
   melds[pid].push({type:'pong', tiles:[tile,tile,tile]});
+  if (typeof from === 'number') discards[from].pop();
   if (deck.length > 0) {
     if (pid === 0) {
       playerNeedsDraw = true;
@@ -454,9 +455,10 @@ function doPong(pid, tile) {
   turn = pid;
 }
 
-function doKong(pid, tile) {
+function doKong(pid, tile, from) {
   removeTileFromHand(pid, tile, 3);
   melds[pid].push({type:'kong', tiles:[tile,tile,tile,tile]});
+  if (typeof from === 'number') discards[from].pop();
   if (deck.length > 0) {
     if (pid === 0) {
       playerNeedsDraw = true;
@@ -467,10 +469,11 @@ function doKong(pid, tile) {
   turn = pid;
 }
 
-function doChi(pid, combo, tile) {
+function doChi(pid, combo, tile, from) {
   removeTileFromHand(pid, combo[0]);
   removeTileFromHand(pid, combo[1]);
   melds[pid].push({type:'chi', tiles:[combo[0], combo[1], tile]});
+  if (typeof from === 'number') discards[from].pop();
   if (deck.length > 0) {
     if (pid === 0) {
       playerNeedsDraw = true;
@@ -490,20 +493,20 @@ function aiDiscard(id) {
   checkReactions(id, discardTile);
 }
 
-function aiKong(id, tile) {
-  doKong(id, tile);
+function aiKong(id, tile, from) {
+  doKong(id, tile, from);
   renderAll();
   setTimeout(() => aiDiscard(id), 300);
 }
 
-function aiPong(id, tile) {
-  doPong(id, tile);
+function aiPong(id, tile, from) {
+  doPong(id, tile, from);
   renderAll();
   setTimeout(() => aiDiscard(id), 300);
 }
 
-function aiChi(id, tile, combos) {
-  doChi(id, combos[0], tile);
+function aiChi(id, tile, combos, from) {
+  doChi(id, combos[0], tile, from);
   renderAll();
   setTimeout(() => aiDiscard(id), 300);
 }
@@ -527,11 +530,11 @@ function checkReactions(from, tile) {
     const pid = (from+i)%4;
     if (canKong(pid, tile)) {
       if (pid === 0) { showActionButtons({kong:true}, from, tile); return; }
-      aiKong(pid, tile); return;
+      aiKong(pid, tile, from); return;
     }
     if (canPong(pid, tile)) {
       if (pid === 0) { showActionButtons({pong:true}, from, tile); return; }
-      aiPong(pid, tile); return;
+      aiPong(pid, tile, from); return;
     }
   }
   // Chi for next player
@@ -539,7 +542,7 @@ function checkReactions(from, tile) {
   const chiOpts = canChi(next, tile, from);
   if (chiOpts.length > 0) {
     if (next === 0) { showActionButtons({chi:chiOpts}, from, tile); return; }
-    aiChi(next, tile, chiOpts); return;
+    aiChi(next, tile, chiOpts, from); return;
   }
   nextTurn();
 }
