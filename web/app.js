@@ -154,6 +154,10 @@ function canHu(pid, tile) {
   return hu(base, tileToIndex[tile]);
 }
 
+function sortPlayer(pid) {
+  players[pid].sort((a,b) => tileToIndex[a] - tileToIndex[b]);
+}
+
 function canChi(pid, tile, from) {
   if (pid !== (from+1)%4) return [];
   const {suit, num} = parseTile(tile);
@@ -264,10 +268,12 @@ function startGame() {
   shuffle(deck);
   for (let p = 0; p < 4; p++) {
     players[p] = deck.splice(0, 16);
+    sortPlayer(p);
     discards[p] = [];
     melds[p] = [];
   }
   players[0].push(deck.shift()); // host draws first
+  sortPlayer(0);
   turn = 0;
   gameOver = false;
   pendingAction = null;
@@ -275,15 +281,21 @@ function startGame() {
   updateControls();
 }
 
+function drawTileFor(pid) {
+  if (deck.length === 0) return null;
+  const tile = deck.shift();
+  players[pid].push(tile);
+  sortPlayer(pid);
+  renderAll();
+  if (checkHu(pid, tile)) {
+    declareWin(pid);
+  }
+  return tile;
+}
+
 function drawTile() {
   if (turn !== 0 || deck.length === 0 || players[0].length !== 16) return;
-  const tile = deck.shift();
-  players[0].push(tile);
-  renderAll();
-  if (checkHu(0, tile)) {
-    declareWin(0);
-    return;
-  }
+  drawTileFor(0);
   updateControls();
 }
 
@@ -296,7 +308,7 @@ function discard(idx) {
 }
 
 function sortHand() {
-  players[0].sort();
+  sortPlayer(0);
   renderPlayerHand();
 }
 
@@ -360,6 +372,9 @@ function handleAction(action) {
 function doPong(pid, tile) {
   removeTileFromHand(pid, tile, 2);
   melds[pid].push({type:'pong', tiles:[tile,tile,tile]});
+  if (deck.length > 0) {
+    drawTileFor(pid);
+  }
   turn = pid;
 }
 
@@ -367,9 +382,7 @@ function doKong(pid, tile) {
   removeTileFromHand(pid, tile, 3);
   melds[pid].push({type:'kong', tiles:[tile,tile,tile,tile]});
   if (deck.length > 0) {
-    const t = deck.shift();
-    players[pid].push(t);
-    if (checkHu(pid, t)) { declareWin(pid); return; }
+    drawTileFor(pid);
   }
   turn = pid;
 }
@@ -378,6 +391,9 @@ function doChi(pid, combo, tile) {
   removeTileFromHand(pid, combo[0]);
   removeTileFromHand(pid, combo[1]);
   melds[pid].push({type:'chi', tiles:[combo[0], combo[1], tile]});
+  if (deck.length > 0) {
+    drawTileFor(pid);
+  }
   turn = pid;
 }
 
