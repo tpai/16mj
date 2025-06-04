@@ -91,9 +91,13 @@ button:disabled {
   margin-top: 10px;
 }
 
-#west .tile,
-#east .tile {
+#west .tile {
   transform: rotate(90deg);
+  width: 48px;
+  height: 32px;
+}
+#east .tile {
+  transform: rotate(-90deg);
   width: 48px;
   height: 32px;
 }
