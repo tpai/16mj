@@ -279,6 +279,20 @@ function renderAiHand(p) {
   }
 }
 
+function renderAiMelds(p) {
+  const el = document.getElementById(`meld-${p}`);
+  if (!el) return;
+  el.innerHTML = '';
+  melds[p].forEach(m => {
+    m.tiles.forEach(t => {
+      const img = document.createElement('img');
+      img.src = tileImages[t];
+      img.className = 'tile';
+      el.appendChild(img);
+    });
+  });
+}
+
 function renderDiscardPile(p) {
   const pile = document.getElementById(`discard-${p}`);
   pile.innerHTML = '';
@@ -296,7 +310,10 @@ function renderAll() {
   renderPlayerMelds();
   for (let i = 0; i < 4; i++) {
     renderDiscardPile(i);
-    if (i !== 0) renderAiHand(i);
+    if (i !== 0) {
+      renderAiHand(i);
+      renderAiMelds(i);
+    }
   }
   document.getElementById('deck-size').textContent = deck.length;
 }
