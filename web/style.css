@@ -1,3 +1,9 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
 body {
   background-color: #121212;
   color: #c0ffc0;
@@ -6,8 +12,11 @@ body {
 }
 #game-container {
   margin: auto;
-  padding: 20px;
-  width: 800px;
+  padding: 10px;
+  max-width: 700px;
+  max-height: 100vh;
+  box-sizing: border-box;
+  overflow: hidden;
   border: 3px solid #00ff00;
 }
 h1 {
@@ -20,13 +29,25 @@ h1 {
     'west center east'
     'player player player';
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 5px;
+  margin-top: 10px;
 }
 #north { grid-area: north; }
 #west { grid-area: west; }
 #east { grid-area: east; }
 #center { grid-area: center; }
+#north, #west, #east, #player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#deck {
+  margin-top: 10px;
+}
+.tile-stack img {
+  width: 32px;
+  height: 48px;
+}
 #player { grid-area: player; }
 .tile-column {
   display: flex;
@@ -34,7 +55,7 @@ h1 {
   align-items: center;
 }
 .discard-title {
-  margin-top: 10px;
+  margin-top: 5px;
 }
 button {
   background-color: #000;
@@ -55,12 +76,12 @@ button:disabled {
 .tile-row {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 .tile {
-  width: 40px;
-  height: 64px;
-  margin: 0 2px;
+  width: 32px;
+  height: 48px;
+  margin: 0 1px;
 }
 
 .ai-hand {

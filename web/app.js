@@ -304,6 +304,19 @@ function renderDiscardPile(p) {
   });
 }
 
+function renderDeck() {
+  const deckEl = document.getElementById('deck');
+  if (!deckEl) return;
+  deckEl.innerHTML = '';
+  if (deck.length > 0) {
+    const img = document.createElement('img');
+    img.src = 'Image/mjback.gif';
+    img.className = 'tile';
+    deckEl.appendChild(img);
+  }
+  document.getElementById('deck-size').textContent = deck.length;
+}
+
 function renderAll() {
   renderPlayerHand();
   renderPlayerFlowers();
@@ -315,27 +328,22 @@ function renderAll() {
       renderAiMelds(i);
     }
   }
-  document.getElementById('deck-size').textContent = deck.length;
+  renderDeck();
 }
 
 function updateControls() {
-  const drawBtn = document.getElementById('drawBtn');
   const sortBtn = document.getElementById('sortBtn');
   if (gameOver) {
-    drawBtn.disabled = true;
     sortBtn.disabled = true;
     return;
   }
   if (pendingAction) {
-    drawBtn.disabled = true;
     sortBtn.disabled = true;
     return;
   }
   if (turn === 0) {
     sortBtn.disabled = false;
-    drawBtn.disabled = deck.length === 0 || !playerNeedsDraw;
   } else {
-    drawBtn.disabled = true;
     sortBtn.disabled = true;
   }
 }
@@ -378,11 +386,6 @@ function drawTileFor(pid) {
   return tile;
 }
 
-function drawTile() {
-  if (turn !== 0 || deck.length === 0 || !playerNeedsDraw) return;
-  drawTileFor(0);
-  updateControls();
-}
 
 function discard(idx) {
   if (turn !== 0) return;
@@ -463,11 +466,7 @@ function doPong(pid, tile, from) {
   melds[pid].push({type:'pong', tiles:[tile,tile,tile]});
   if (typeof from === 'number') discards[from].pop();
   if (deck.length > 0) {
-    if (pid === 0) {
-      playerNeedsDraw = true;
-    } else {
-      drawTileFor(pid);
-    }
+    drawTileFor(pid);
   }
   turn = pid;
 }
@@ -477,11 +476,7 @@ function doKong(pid, tile, from) {
   melds[pid].push({type:'kong', tiles:[tile,tile,tile,tile]});
   if (typeof from === 'number') discards[from].pop();
   if (deck.length > 0) {
-    if (pid === 0) {
-      playerNeedsDraw = true;
-    } else {
-      drawTileFor(pid);
-    }
+    drawTileFor(pid);
   }
   turn = pid;
 }
@@ -492,11 +487,7 @@ function doChi(pid, combo, tile, from) {
   melds[pid].push({type:'chi', tiles:[combo[0], combo[1], tile]});
   if (typeof from === 'number') discards[from].pop();
   if (deck.length > 0) {
-    if (pid === 0) {
-      playerNeedsDraw = true;
-    } else {
-      drawTileFor(pid);
-    }
+    drawTileFor(pid);
   }
   turn = pid;
 }
@@ -575,11 +566,12 @@ function nextTurn() {
     return;
   }
   turn = (turn + 1) % 4;
-  if (turn === 0) playerNeedsDraw = true;
-  updateControls();
-  if (turn !== 0) {
+  if (turn === 0) {
+    drawTileFor(0);
+  } else {
     setTimeout(() => aiTurn(turn), 500);
   }
+  updateControls();
 }
 
 function aiTurn(id) {
@@ -607,7 +599,6 @@ function aiTurn(id) {
 }
 
 document.getElementById('startBtn').addEventListener('click', startGame);
-document.getElementById('drawBtn').addEventListener('click', drawTile);
 document.getElementById('sortBtn').addEventListener('click', sortHand);
 document.getElementById('toggleAi').addEventListener('click', toggleAi);
 

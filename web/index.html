@@ -8,11 +8,10 @@
 <body>
 <div id="game-container">
   <h1>16MJ - Retro Web Edition</h1>
-  <div id="controls">
-    <button id="startBtn">Start Game</button>
-    <button id="drawBtn" disabled>Draw Tile</button>
-    <button id="sortBtn" disabled>Sort Tiles</button>
-  </div>
+    <div id="controls">
+      <button id="startBtn">Start Game</button>
+      <button id="sortBtn" disabled>Sort Tiles</button>
+    </div>
   <div id="actions" class="actions" style="display:none;"></div>
   <div id="board">
       <div id="north" class="opponent">
@@ -28,6 +27,7 @@
         <div id="discard-3" class="tile-column"></div>
       </div>
       <div id="center">
+        <div id="deck" class="tile-stack"></div>
         <div id="deck-info">Deck: <span id="deck-size"></span></div>
       </div>
       <div id="east" class="opponent">
