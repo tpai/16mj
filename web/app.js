@@ -316,7 +316,7 @@ function updateControls() {
   }
   if (turn === 0) {
     sortBtn.disabled = false;
-    drawBtn.disabled = deck.length === 0 || players[0].length !== 16;
+    drawBtn.disabled = deck.length === 0 || !playerNeedsDraw;
   } else {
     drawBtn.disabled = true;
     sortBtn.disabled = true;
@@ -362,7 +362,7 @@ function drawTileFor(pid) {
 }
 
 function drawTile() {
-  if (turn !== 0 || deck.length === 0 || players[0].length !== 16) return;
+  if (turn !== 0 || deck.length === 0 || !playerNeedsDraw) return;
   drawTileFor(0);
   updateControls();
 }
@@ -445,7 +445,11 @@ function doPong(pid, tile) {
   removeTileFromHand(pid, tile, 2);
   melds[pid].push({type:'pong', tiles:[tile,tile,tile]});
   if (deck.length > 0) {
-    drawTileFor(pid);
+    if (pid === 0) {
+      playerNeedsDraw = true;
+    } else {
+      drawTileFor(pid);
+    }
   }
   turn = pid;
 }
@@ -454,7 +458,11 @@ function doKong(pid, tile) {
   removeTileFromHand(pid, tile, 3);
   melds[pid].push({type:'kong', tiles:[tile,tile,tile,tile]});
   if (deck.length > 0) {
-    drawTileFor(pid);
+    if (pid === 0) {
+      playerNeedsDraw = true;
+    } else {
+      drawTileFor(pid);
+    }
   }
   turn = pid;
 }
@@ -464,7 +472,11 @@ function doChi(pid, combo, tile) {
   removeTileFromHand(pid, combo[1]);
   melds[pid].push({type:'chi', tiles:[combo[0], combo[1], tile]});
   if (deck.length > 0) {
-    drawTileFor(pid);
+    if (pid === 0) {
+      playerNeedsDraw = true;
+    } else {
+      drawTileFor(pid);
+    }
   }
   turn = pid;
 }
