@@ -332,20 +332,7 @@ function renderAll() {
 }
 
 function updateControls() {
-  const sortBtn = document.getElementById('sortBtn');
-  if (gameOver) {
-    sortBtn.disabled = true;
-    return;
-  }
-  if (pendingAction) {
-    sortBtn.disabled = true;
-    return;
-  }
-  if (turn === 0) {
-    sortBtn.disabled = false;
-  } else {
-    sortBtn.disabled = true;
-  }
+  // no-op for now
 }
 
 function startGame() {
@@ -598,9 +585,8 @@ function aiTurn(id) {
   checkReactions(id, discardTile);
 }
 
-document.getElementById('startBtn').addEventListener('click', startGame);
-document.getElementById('sortBtn').addEventListener('click', sortHand);
 document.getElementById('toggleAi').addEventListener('click', toggleAi);
+startGame();
 
 function toggleAi() {
   showAIDeck = !showAIDeck;

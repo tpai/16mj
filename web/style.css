@@ -41,6 +41,9 @@ h1 {
   flex-direction: column;
   align-items: center;
 }
+#west, #east {
+  flex-direction: row;
+}
 #deck {
   margin-top: 10px;
 }
@@ -86,6 +89,14 @@ button:disabled {
 
 .ai-hand {
   margin-top: 10px;
+}
+
+#west .tile {
+  transform: rotate(-90deg);
+}
+
+#east .tile {
+  transform: rotate(90deg);
 }
 
 #toggleAi {
