@@ -27,6 +27,7 @@ let deck = [];
 const players = [[], [], [], []];
 const discards = [[], [], [], []];
 const melds = [[], [], [], []];
+const flowers = [[], [], [], []];
 let turn = 0; // 0 = you
 let gameOver = false;
 let pendingAction = null;
@@ -40,6 +41,10 @@ const tileToIndex = {
   f1:27,f2:28,f3:29,f4:30,d1:31,d2:32,d3:33,
   h1:34,h2:35,h3:36,h4:37,h5:38,h6:39,h7:40,h8:41
 };
+
+function isFlower(t) {
+  return t && t.startsWith('h');
+}
 
 function insertMj(mjv, mj) {
   const arr = mj.slice();
@@ -159,6 +164,42 @@ function sortPlayer(pid) {
   players[pid].sort((a,b) => tileToIndex[a] - tileToIndex[b]);
 }
 
+function replaceFlowers(pid) {
+  let changed = true;
+  while (changed && deck.length > 0) {
+    changed = false;
+    for (let i=0;i<players[pid].length;i++) {
+      if (isFlower(players[pid][i])) {
+        flowers[pid].push(players[pid][i]);
+        players[pid].splice(i,1);
+        if (deck.length > 0) {
+          players[pid].push(deck.shift());
+        }
+        changed = true;
+        break;
+      }
+    }
+    sortPlayer(pid);
+  }
+}
+
+function flowerTai(pid) {
+  const seatFlowers = [
+    ['h1','h5'],
+    ['h2','h6'],
+    ['h3','h7'],
+    ['h4','h8']
+  ];
+  let tai = 0;
+  const f = flowers[pid];
+  seatFlowers[pid].forEach(t => { if (f.includes(t)) tai += 1; });
+  const seasons = ['h1','h2','h3','h4'];
+  const gent = ['h5','h6','h7','h8'];
+  if (seasons.every(t => f.includes(t))) tai += 2;
+  if (gent.every(t => f.includes(t))) tai += 2;
+  return tai;
+}
+
 function canChi(pid, tile, from) {
   if (pid !== (from+1)%4) return [];
   const {suit, num} = parseTile(tile);
@@ -209,6 +250,18 @@ function renderPlayerMelds() {
   });
 }
 
+function renderPlayerFlowers() {
+  const fEl = document.getElementById('player-flowers');
+  if (!fEl) return;
+  fEl.innerHTML = '';
+  flowers[0].forEach(t => {
+    const img = document.createElement('img');
+    img.src = tileImages[t];
+    img.className = 'tile';
+    fEl.appendChild(img);
+  });
+}
+
 function renderAiHand(p) {
   const el = document.getElementById(`hand-${p}`);
   if (!el) return;
@@ -239,6 +292,7 @@ function renderDiscardPile(p) {
 
 function renderAll() {
   renderPlayerHand();
+  renderPlayerFlowers();
   renderPlayerMelds();
   for (let i = 0; i < 4; i++) {
     renderDiscardPile(i);
@@ -277,9 +331,14 @@ function startGame() {
     sortPlayer(p);
     discards[p] = [];
     melds[p] = [];
+    flowers[p] = [];
   }
   players[0].push(deck.shift()); // host draws first
   sortPlayer(0);
+  replaceFlowers(0);
+  replaceFlowers(1);
+  replaceFlowers(2);
+  replaceFlowers(3);
   turn = 0;
   gameOver = false;
   pendingAction = null;
@@ -290,12 +349,13 @@ function startGame() {
 
 function drawTileFor(pid) {
   if (deck.length === 0) return null;
-  const tile = deck.shift();
-  players[pid].push(tile);
+  players[pid].push(deck.shift());
+  replaceFlowers(pid);
   sortPlayer(pid);
+  const tile = players[pid][players[pid].length - 1];
   if (pid === 0) playerNeedsDraw = false;
   renderAll();
-  if (checkHu(pid, tile)) {
+  if (tile && checkHu(pid, tile)) {
     declareWin(pid);
   }
   return tile;
@@ -332,8 +392,10 @@ function declareWin(id) {
   gameOver = true;
   renderAll();
   updateControls();
-  if (id === 0) alert('You win!');
-  else alert(`Player ${id + 1} wins!`);
+  let msg = id === 0 ? 'You win!' : `Player ${id + 1} wins!`;
+  const tai = flowerTai(id);
+  if (tai > 0) msg += ` (Flower tai: ${tai})`;
+  alert(msg);
 }
 
 function showActionButtons(opts, from, tile) {
@@ -499,7 +561,9 @@ function aiTurn(id) {
   }
   const drawn = deck.shift();
   players[id].push(drawn);
-  if (checkHu(id, drawn)) {
+  replaceFlowers(id);
+  const last = players[id][players[id].length - 1];
+  if (last && checkHu(id, last)) {
     declareWin(id);
     return;
   }
