@@ -1,0 +1,74 @@
+body {
+  background-color: #121212;
+  color: #c0ffc0;
+  font-family: "Courier New", Courier, monospace;
+  text-align: center;
+}
+#game-container {
+  margin: auto;
+  padding: 20px;
+  width: 800px;
+  border: 3px solid #00ff00;
+}
+h1 {
+  margin-bottom: 20px;
+}
+#board {
+  display: grid;
+  grid-template-areas:
+    'north north north'
+    'west center east'
+    'player player player';
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-top: 20px;
+}
+#north { grid-area: north; }
+#west { grid-area: west; }
+#east { grid-area: east; }
+#center { grid-area: center; }
+#player { grid-area: player; }
+.tile-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.discard-title {
+  margin-top: 10px;
+}
+button {
+  background-color: #000;
+  color: #0f0;
+  border: 2px solid #0f0;
+  padding: 5px 15px;
+  margin: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.actions {
+  margin-top: 10px;
+}
+.tile-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+.tile {
+  width: 40px;
+  height: 64px;
+  margin: 0 2px;
+}
+
+.ai-hand {
+  margin-top: 10px;
+}
+
+#toggleAi {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+}
