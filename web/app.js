@@ -31,7 +31,7 @@ const flowers = [[], [], [], []];
 let turn = 0; // 0 = you
 let gameOver = false;
 let pendingAction = null;
-let showAIDeck = false;
+let showAIDeck = true;
 let playerNeedsDraw = false;
 
 const tileToIndex = {
@@ -270,6 +270,18 @@ function renderPlayerFlowers() {
   });
 }
 
+function renderAiFlowers(p) {
+  const el = document.getElementById(`ai-flowers-${p}`);
+  if (!el) return;
+  el.innerHTML = '';
+  flowers[p].forEach(t => {
+    const img = document.createElement('img');
+    img.src = tileImages[t];
+    img.className = 'tile';
+    el.appendChild(img);
+  });
+}
+
 function renderAiHand(p) {
   const el = document.getElementById(`hand-${p}`);
   if (!el) return;
@@ -327,6 +339,7 @@ function renderAll() {
     if (i !== 0) {
       renderAiHand(i);
       renderAiMelds(i);
+      renderAiFlowers(i);
     }
   }
   renderDeck();
@@ -595,12 +608,4 @@ function aiTurn(id) {
   checkReactions(id, discardTile);
 }
 
-document.getElementById('toggleAi').addEventListener('click', toggleAi);
 startGame();
-
-function toggleAi() {
-  showAIDeck = !showAIDeck;
-  const btn = document.getElementById('toggleAi');
-  btn.textContent = showAIDeck ? 'Hide AI Hands' : 'Show AI Hands';
-  renderAll();
-}

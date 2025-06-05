@@ -12,8 +12,7 @@ body {
 }
 #game-container {
   margin: auto;
-  padding: 10px;
-  max-width: 700px;
+  padding: 0;
   max-height: 100vh;
   box-sizing: border-box;
 }
@@ -38,20 +37,21 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-#west, #east {
-  flex-direction: row;
+  gap: 5px;
+  padding: 5px;
 }
 #deck {
   margin-top: 10px;
-}
-.tile-stack img {
 }
 #player { grid-area: player; }
 .tile-column {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+#discard-1, #discard-2, #discard-3 {
+  max-width: 800px;
+  overflow-wrap: normal;
 }
 .discard-title {
   margin-top: 5px;
@@ -74,22 +74,76 @@ button:disabled {
 }
 .tile-row {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
   margin-top: 10px;
+  max-width: 820px;
+  height: 42px;
 }
 .tile {
+  width: 35px;
+  height: 42px;
   margin: 0 1px;
 }
 
 .ai-hand {
-  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+  gap: 2px;
 }
 
-#west .tile {
-  transform: rotate(90deg);
+.tile-row, .tile-column {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  margin: 5px 0 0 0;
 }
-#east .tile {
-  transform: rotate(-90deg);
+
+.tile-column {
+  flex-direction: column;
+}
+
+#meld-1, #meld-2, #meld-3 {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+  gap: 2px;
+}
+
+#hand-1, #hand-2, #hand-3 {
+  min-width: 622px;
+  height: 42px;
+  gap: 2px;
+}
+
+/* AI flower areas - same styling as player flowers */
+#ai-flowers-1, #ai-flowers-2, #ai-flowers-3 {
+  display: flex;
+  justify-content: center;
+  margin: 5px 0;
+  gap: 2px;
+}
+
+/* Ensure consistent spacing for all tile containers */
+.tile-row, .tile-column, .ai-hand, #player-flowers, #player-melds, #player-hand {
+  gap: 2px;
+  margin: 5px 0;
+}
+
+/* Make AI areas visually consistent with player area */
+.opponent {
+  background-color: rgba(0, 255, 0, 0.05);
+  border: 1px solid rgba(0, 255, 0, 0.2);
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.player-area {
+  background-color: rgba(0, 255, 0, 0.1);
+  border: 2px solid rgba(0, 255, 0, 0.3);
+  border-radius: 5px;
+  padding: 10px;
 }
 
 #toggleAi {
