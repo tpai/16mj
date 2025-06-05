@@ -31,8 +31,9 @@ const flowers = [[], [], [], []];
 let turn = 0; // 0 = you
 let gameOver = false;
 let pendingAction = null;
-let showAIDeck = true;
+let showAIDeck = false;
 let playerNeedsDraw = false;
+let lastDiscard = null; // Track the latest discard {player: number, tileIndex: number}
 
 const tileToIndex = {
   t1:0,t2:1,t3:2,t4:3,t5:4,t6:5,t7:6,t8:7,t9:8,
@@ -309,10 +310,16 @@ function renderAiMelds(p) {
 function renderDiscardPile(p) {
   const pile = document.getElementById(`discard-${p}`);
   pile.innerHTML = '';
-  discards[p].forEach(t => {
+  discards[p].forEach((t, idx) => {
     const img = document.createElement('img');
     img.src = tileImages[t];
     img.className = 'tile';
+    
+    // Highlight the latest discard tile
+    if (lastDiscard && lastDiscard.player === p && idx === discards[p].length - 1) {
+      img.classList.add('latest-discard');
+    }
+    
     pile.appendChild(img);
   });
 }
@@ -371,6 +378,7 @@ function startGame() {
   gameOver = false;
   pendingAction = null;
   playerNeedsDraw = false;
+  lastDiscard = null; // Reset lastDiscard at start of game
   renderAll();
   updateControls();
 }
@@ -401,6 +409,7 @@ function discard(idx) {
   if (playerNeedsDraw) return;
   const tile = players[0].splice(idx, 1)[0];
   discards[0].push(tile);
+  lastDiscard = { player: 0, tileIndex: discards[0].length - 1 };
   playerNeedsDraw = true;
   sortPlayer(0);
   renderAll();
@@ -476,7 +485,10 @@ function doPong(pid, tile, from) {
   const meld = {type:'pong', tiles:[tile, tile, tile]};
   if (typeof from === 'number') meld.fromIdx = 2;
   melds[pid].push(meld);
-  if (typeof from === 'number') discards[from].pop();
+  if (typeof from === 'number') {
+    discards[from].pop();
+    lastDiscard = null; // Clear highlight when tile is taken
+  }
   if (pid === 0) playerNeedsDraw = false;
   turn = pid;
 }
@@ -486,7 +498,10 @@ function doKong(pid, tile, from) {
   const meld = {type:'kong', tiles:[tile,tile,tile,tile]};
   if (typeof from === 'number') meld.fromIdx = 3;
   melds[pid].push(meld);
-  if (typeof from === 'number') discards[from].pop();
+  if (typeof from === 'number') {
+    discards[from].pop();
+    lastDiscard = null; // Clear highlight when tile is taken
+  }
   if (pid === 0) playerNeedsDraw = false;
   turn = pid;
 }
@@ -497,7 +512,10 @@ function doChi(pid, combo, tile, from) {
   const meld = {type:'chi', tiles:[combo[0], combo[1], tile]};
   if (typeof from === 'number') meld.fromIdx = 2;
   melds[pid].push(meld);
-  if (typeof from === 'number') discards[from].pop();
+  if (typeof from === 'number') {
+    discards[from].pop();
+    lastDiscard = null; // Clear highlight when tile is taken
+  }
   if (pid === 0) playerNeedsDraw = false;
   turn = pid;
 }
@@ -507,6 +525,7 @@ function aiDiscard(id) {
   const dIdx = Math.floor(Math.random() * players[id].length);
   const discardTile = players[id].splice(dIdx,1)[0];
   discards[id].push(discardTile);
+  lastDiscard = { player: id, tileIndex: discards[id].length - 1 };
   renderAll();
   checkReactions(id, discardTile);
 }
@@ -604,6 +623,7 @@ function aiTurn(id) {
   const dIdx = Math.floor(Math.random() * players[id].length);
   const discardTile = players[id].splice(dIdx, 1)[0];
   discards[id].push(discardTile);
+  lastDiscard = { player: id, tileIndex: discards[id].length - 1 };
   renderAll();
   checkReactions(id, discardTile);
 }
