@@ -33,6 +33,7 @@ let gameOver = false;
 let pendingAction = null;
 let showAIDeck = false;
 let playerNeedsDraw = false;
+let lastDiscard = null; // Track the latest discard {player: number, tileIndex: number}
 
 const tileToIndex = {
   t1:0,t2:1,t3:2,t4:3,t5:4,t6:5,t7:6,t8:7,t9:8,
@@ -219,6 +220,21 @@ function shuffle(arr) {
   }
 }
 
+function renderMeld(el, meld) {
+  let tiles = meld.tiles.slice();
+  if (typeof meld.fromIdx === 'number') {
+    const taken = tiles.splice(meld.fromIdx, 1)[0];
+    const mid = Math.floor((tiles.length + 1) / 2);
+    tiles.splice(mid, 0, taken);
+  }
+  tiles.forEach(t => {
+    const img = document.createElement('img');
+    img.src = tileImages[t];
+    img.className = 'tile';
+    el.appendChild(img);
+  });
+}
+
 function renderPlayerHand() {
   const handEl = document.getElementById('player-hand');
   handEl.innerHTML = '';
@@ -240,14 +256,7 @@ function renderPlayerMelds() {
   const mEl = document.getElementById('player-melds');
   if (!mEl) return;
   mEl.innerHTML = '';
-  melds[0].forEach(m => {
-    m.tiles.forEach(t => {
-      const img = document.createElement('img');
-      img.src = tileImages[t];
-      img.className = 'tile';
-      mEl.appendChild(img);
-    });
-  });
+  melds[0].forEach(m => renderMeld(mEl, m));
 }
 
 function renderPlayerFlowers() {
@@ -259,6 +268,18 @@ function renderPlayerFlowers() {
     img.src = tileImages[t];
     img.className = 'tile';
     fEl.appendChild(img);
+  });
+}
+
+function renderAiFlowers(p) {
+  const el = document.getElementById(`ai-flowers-${p}`);
+  if (!el) return;
+  el.innerHTML = '';
+  flowers[p].forEach(t => {
+    const img = document.createElement('img');
+    img.src = tileImages[t];
+    img.className = 'tile';
+    el.appendChild(img);
   });
 }
 
@@ -283,23 +304,22 @@ function renderAiMelds(p) {
   const el = document.getElementById(`meld-${p}`);
   if (!el) return;
   el.innerHTML = '';
-  melds[p].forEach(m => {
-    m.tiles.forEach(t => {
-      const img = document.createElement('img');
-      img.src = tileImages[t];
-      img.className = 'tile';
-      el.appendChild(img);
-    });
-  });
+  melds[p].forEach(m => renderMeld(el, m));
 }
 
 function renderDiscardPile(p) {
   const pile = document.getElementById(`discard-${p}`);
   pile.innerHTML = '';
-  discards[p].forEach(t => {
+  discards[p].forEach((t, idx) => {
     const img = document.createElement('img');
     img.src = tileImages[t];
     img.className = 'tile';
+    
+    // Highlight the latest discard tile
+    if (lastDiscard && lastDiscard.player === p && idx === discards[p].length - 1) {
+      img.classList.add('latest-discard');
+    }
+    
     pile.appendChild(img);
   });
 }
@@ -326,6 +346,7 @@ function renderAll() {
     if (i !== 0) {
       renderAiHand(i);
       renderAiMelds(i);
+      renderAiFlowers(i);
     }
   }
   renderDeck();
@@ -346,8 +367,10 @@ function startGame() {
     flowers[p] = [];
   }
   players[0].push(deck.shift()); // host draws first
-  sortPlayer(0);
   replaceFlowers(0);
+  const firstTile = players[0].pop();
+  sortPlayer(0);
+  players[0].push(firstTile);
   replaceFlowers(1);
   replaceFlowers(2);
   replaceFlowers(3);
@@ -355,6 +378,7 @@ function startGame() {
   gameOver = false;
   pendingAction = null;
   playerNeedsDraw = false;
+  lastDiscard = null; // Reset lastDiscard at start of game
   renderAll();
   updateControls();
 }
@@ -363,9 +387,15 @@ function drawTileFor(pid) {
   if (deck.length === 0) return null;
   players[pid].push(deck.shift());
   replaceFlowers(pid);
-  sortPlayer(pid);
   const tile = players[pid][players[pid].length - 1];
-  if (pid === 0) playerNeedsDraw = false;
+  if (pid === 0) {
+    players[pid].pop();
+    sortPlayer(pid);
+    players[pid].push(tile);
+    playerNeedsDraw = false;
+  } else {
+    sortPlayer(pid);
+  }
   renderAll();
   if (tile && checkHu(pid, tile)) {
     declareWin(pid);
@@ -379,7 +409,9 @@ function discard(idx) {
   if (playerNeedsDraw) return;
   const tile = players[0].splice(idx, 1)[0];
   discards[0].push(tile);
+  lastDiscard = { player: 0, tileIndex: discards[0].length - 1 };
   playerNeedsDraw = true;
+  sortPlayer(0);
   renderAll();
   checkReactions(0, tile);
 }
@@ -450,32 +482,41 @@ function handleAction(action) {
 
 function doPong(pid, tile, from) {
   removeTileFromHand(pid, tile, 2);
-  melds[pid].push({type:'pong', tiles:[tile,tile,tile]});
-  if (typeof from === 'number') discards[from].pop();
-  if (deck.length > 0) {
-    drawTileFor(pid);
+  const meld = {type:'pong', tiles:[tile, tile, tile]};
+  if (typeof from === 'number') meld.fromIdx = 2;
+  melds[pid].push(meld);
+  if (typeof from === 'number') {
+    discards[from].pop();
+    lastDiscard = null; // Clear highlight when tile is taken
   }
+  if (pid === 0) playerNeedsDraw = false;
   turn = pid;
 }
 
 function doKong(pid, tile, from) {
   removeTileFromHand(pid, tile, 3);
-  melds[pid].push({type:'kong', tiles:[tile,tile,tile,tile]});
-  if (typeof from === 'number') discards[from].pop();
-  if (deck.length > 0) {
-    drawTileFor(pid);
+  const meld = {type:'kong', tiles:[tile,tile,tile,tile]};
+  if (typeof from === 'number') meld.fromIdx = 3;
+  melds[pid].push(meld);
+  if (typeof from === 'number') {
+    discards[from].pop();
+    lastDiscard = null; // Clear highlight when tile is taken
   }
+  if (pid === 0) playerNeedsDraw = false;
   turn = pid;
 }
 
 function doChi(pid, combo, tile, from) {
   removeTileFromHand(pid, combo[0]);
   removeTileFromHand(pid, combo[1]);
-  melds[pid].push({type:'chi', tiles:[combo[0], combo[1], tile]});
-  if (typeof from === 'number') discards[from].pop();
-  if (deck.length > 0) {
-    drawTileFor(pid);
+  const meld = {type:'chi', tiles:[combo[0], combo[1], tile]};
+  if (typeof from === 'number') meld.fromIdx = 2;
+  melds[pid].push(meld);
+  if (typeof from === 'number') {
+    discards[from].pop();
+    lastDiscard = null; // Clear highlight when tile is taken
   }
+  if (pid === 0) playerNeedsDraw = false;
   turn = pid;
 }
 
@@ -484,6 +525,7 @@ function aiDiscard(id) {
   const dIdx = Math.floor(Math.random() * players[id].length);
   const discardTile = players[id].splice(dIdx,1)[0];
   discards[id].push(discardTile);
+  lastDiscard = { player: id, tileIndex: discards[id].length - 1 };
   renderAll();
   checkReactions(id, discardTile);
 }
@@ -581,16 +623,9 @@ function aiTurn(id) {
   const dIdx = Math.floor(Math.random() * players[id].length);
   const discardTile = players[id].splice(dIdx, 1)[0];
   discards[id].push(discardTile);
+  lastDiscard = { player: id, tileIndex: discards[id].length - 1 };
   renderAll();
   checkReactions(id, discardTile);
 }
 
-document.getElementById('toggleAi').addEventListener('click', toggleAi);
 startGame();
-
-function toggleAi() {
-  showAIDeck = !showAIDeck;
-  const btn = document.getElementById('toggleAi');
-  btn.textContent = showAIDeck ? 'Hide AI Hands' : 'Show AI Hands';
-  renderAll();
-}
