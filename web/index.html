@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>16MJ Web</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="game-container">
+  <h1>16MJ - Retro Web Edition</h1>
+  <div id="actions" class="actions" style="display:none;"></div>
+  <div id="board">
+      <div id="north" class="opponent">
+        <div class="discard-title">North</div>
+        <div id="hand-2" class="tile-row ai-hand" style="display:none"></div>
+        <div id="meld-2" class="tile-row"></div>
+        <div id="discard-2" class="tile-row"></div>
+      </div>
+      <div id="west" class="opponent">
+        <div class="discard-title">West</div>
+        <div id="hand-3" class="tile-column ai-hand" style="display:none"></div>
+        <div id="meld-3" class="tile-column"></div>
+        <div id="discard-3" class="tile-column"></div>
+      </div>
+      <div id="center">
+        <div id="deck" class="tile-stack"></div>
+        <div id="deck-info">Deck: <span id="deck-size"></span></div>
+      </div>
+      <div id="east" class="opponent">
+        <div class="discard-title">East</div>
+        <div id="hand-1" class="tile-column ai-hand" style="display:none"></div>
+        <div id="meld-1" class="tile-column"></div>
+        <div id="discard-1" class="tile-column"></div>
+      </div>
+    <div id="player" class="player-area">
+      <div class="discard-title">You</div>
+      <div id="discard-0" class="tile-row"></div>
+      <div id="player-flowers" class="tile-row"></div>
+      <div id="player-melds" class="tile-row"></div>
+      <div id="player-hand" class="tile-row"></div>
+    </div>
+  </div>
+</div>
+<button id="toggleAi">Show AI Hands</button>
+<script src="app.js"></script>
+</body>
+</html>

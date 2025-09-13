@@ -1,0 +1,109 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+body {
+  background-color: #121212;
+  color: #c0ffc0;
+  font-family: "Courier New", Courier, monospace;
+  text-align: center;
+}
+#game-container {
+  margin: auto;
+  padding: 10px;
+  max-width: 700px;
+  max-height: 100vh;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 3px solid #00ff00;
+}
+h1 {
+  margin-bottom: 20px;
+}
+#board {
+  display: grid;
+  grid-template-areas:
+    'north north north'
+    'west center east'
+    'player player player';
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 5px;
+  margin-top: 10px;
+}
+#north { grid-area: north; }
+#west { grid-area: west; }
+#east { grid-area: east; }
+#center { grid-area: center; }
+#north, #west, #east, #player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#west, #east {
+  flex-direction: row;
+}
+#deck {
+  margin-top: 10px;
+}
+.tile-stack img {
+  width: 32px;
+  height: 48px;
+}
+#player { grid-area: player; }
+.tile-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.discard-title {
+  margin-top: 5px;
+}
+button {
+  background-color: #000;
+  color: #0f0;
+  border: 2px solid #0f0;
+  padding: 5px 15px;
+  margin: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.actions {
+  margin-top: 10px;
+}
+.tile-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+.tile {
+  width: 32px;
+  height: 48px;
+  margin: 0 1px;
+}
+
+.ai-hand {
+  margin-top: 10px;
+}
+
+#west .tile {
+  transform: rotate(90deg);
+  width: 48px;
+  height: 32px;
+}
+#east .tile {
+  transform: rotate(-90deg);
+  width: 48px;
+  height: 32px;
+}
+
+#toggleAi {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+}
